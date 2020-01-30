@@ -11,8 +11,7 @@ public class ExtraDetailsDto {
     String userId;
     String phoneNumber;
     String imageURL;
-    String deviceId;
-    String webId;
     String profileType;
+    Boolean isOrganization;
     List<String> moderatorId;
 }

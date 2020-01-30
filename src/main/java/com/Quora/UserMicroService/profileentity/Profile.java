@@ -25,11 +25,10 @@ public class Profile {
     List<String> followingId;
     List<String> moderatorId;
     List<InterestDto> category;
-    String deviceId;
-    String webId;
     String name;
     String emailAddress;
     String password;
     String channel;
     String role;
+    Boolean isOrganization;
 }

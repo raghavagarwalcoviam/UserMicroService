@@ -8,6 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class AskerResponseDto {
+
     List<String> askerFollowerList;
     List<String> categoryFollowerList;
     List<String> tagFollowerList;
