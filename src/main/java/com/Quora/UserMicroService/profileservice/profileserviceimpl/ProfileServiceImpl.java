@@ -59,7 +59,7 @@ public class ProfileServiceImpl implements ProfileService {
         if (null != askerDto.getTaggedProfileId()) {
             profile = profileRepository.findById(askerDto.getTaggedProfileId());
             if (profile.isPresent()) {
-                if (profile.get().getProfileType().equals("public")) {
+                if (profile.get().getProfile().equals("public")) {
                     askerResponseDto.setTagFollowerList(profile.get().getFollowerId());
                 } else {
                     askerResponseDto.setModeratorList(profile.get().getModeratorId());
@@ -132,7 +132,7 @@ public class ProfileServiceImpl implements ProfileService {
         if (null != answerDto.getTaggedProfileId()) {
             profile = profileRepository.findById(answerDto.getTaggedProfileId());
             if (profile.isPresent()) {
-                if (profile.get().getProfileType().equals("public")) {
+                if (profile.get().getProfile().equals("public")) {
                     answerResponseDto.setTagFollowerList(profile.get().getFollowerId());
                 } else {
                     answerResponseDto.setModeratorList(profile.get().getModeratorId());

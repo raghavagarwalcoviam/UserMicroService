@@ -11,7 +11,8 @@ public class ExtraDetailsDto {
     String userId;
     String phoneNumber;
     String imageURL;
-    String profileType;
-    Boolean isOrganization;
+    String channel;
+    String profile;
+    String role;
     List<String> moderatorId;
 }

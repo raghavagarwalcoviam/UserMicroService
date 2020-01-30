@@ -17,10 +17,8 @@ public class Profile {
     String phoneNumber;
     String imageURL;
     int points;
-    String profileType;
+    String profile;
     String level;
-    List<String> questionId;
-    List<String> answerId;
     List<String> followerId;
     List<String> followingId;
     List<String> moderatorId;
