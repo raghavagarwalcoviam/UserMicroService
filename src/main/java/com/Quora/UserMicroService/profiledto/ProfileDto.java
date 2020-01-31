@@ -15,7 +15,5 @@ public class ProfileDto {
     String role;
     String phoneNumber;
     String imageURL;
-    String deviceId;
-    String webId;
-    String profileType;
+    String profile;
 }

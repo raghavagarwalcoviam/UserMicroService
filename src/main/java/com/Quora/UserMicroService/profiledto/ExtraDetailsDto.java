@@ -14,5 +14,4 @@ public class ExtraDetailsDto {
     String channel;
     String profile;
     String role;
-    List<String> moderatorId;
 }

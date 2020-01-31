@@ -2,6 +2,7 @@ package com.Quora.UserMicroService.profileservice;
 
 import com.Quora.UserMicroService.profiledto.*;
 import com.Quora.UserMicroService.profileentity.Profile;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -14,9 +15,9 @@ public interface ProfileService {
     AskerResponseDto getApprovedFollower(AskerDto askerDto);
     AnswerResponseDto getAnswerFollower(AnswerDto askerDto);
     AnswerResponseDto getAnswerApprovedFollower(AnswerDto askerDto);
-    ResponseEntity<String> addFollower(String followerId,String userId);
+    ResponseEntity<String> addFollower(String followerId,String userId) throws JsonProcessingException;
     ResponseEntity<String> addFollowing(String followingId,String userId);
-    ResponseEntity<String> addPoints(int points,String userId);
+    ResponseEntity<String> addPoints(int points,String userId) throws JsonProcessingException;
     ResponseEntity<String> addModerator(String moderatorId,String userId);
     ResponseEntity<String> addCategory(CategoryDto categoryDto);
     ResponseEntity<List<UserDetailDto>> getFollowers(String userId);

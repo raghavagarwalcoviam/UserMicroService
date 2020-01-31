@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Vector;
 
 @Getter
 @Setter
@@ -19,14 +20,10 @@ public class Profile {
     int points;
     String profile;
     String level;
-    List<String> followerId;
-    List<String> followingId;
-    List<String> moderatorId;
     List<InterestDto> category;
     String name;
     String emailAddress;
     String password;
     String channel;
     String role;
-    Boolean isOrganization;
 }
