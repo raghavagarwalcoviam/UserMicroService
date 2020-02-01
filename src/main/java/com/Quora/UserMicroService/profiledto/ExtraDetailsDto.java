@@ -9,8 +9,7 @@ import java.util.List;
 @Setter
 public class ExtraDetailsDto {
     String userId;
-    String phoneNumber;
-    String imageURL;
+    List<InterestDto> category;
     String channel;
     String profile;
     String role;
