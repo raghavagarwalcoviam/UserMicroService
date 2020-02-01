@@ -16,7 +16,6 @@ public class Profile {
     @Id
     private String userId;
     String phoneNumber;
-    String imageURL;
     int points;
     String profile;
     String level;

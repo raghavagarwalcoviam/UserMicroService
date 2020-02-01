@@ -4,22 +4,26 @@ import com.Quora.UserMicroService.profiledto.*;
 import com.Quora.UserMicroService.profileentity.Profile;
 import com.Quora.UserMicroService.profileservice.ProfileService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/profile")
 public class Controller {
 
     @Autowired
     ProfileService profileService;
+    @Autowired
+    KafkaTemplate<String,String> kafkaTemplate;
 
     //Testing done
     @PostMapping("/basicDetails")
@@ -28,6 +32,7 @@ public class Controller {
         BeanUtils.copyProperties(basicDetailsDto,profile);
         profile.setPoints(0);
         profile.setLevel("Beginner");
+        profile.setCategory(new ArrayList<>());
         Profile createdProfile = profileService.addProfile(profile);
         //insert to kafka
         return new ResponseEntity<String>(createdProfile.getUserId(),HttpStatus.CREATED);
@@ -35,9 +40,17 @@ public class Controller {
 
     //Testing done
     @PostMapping("/extraDetails")
-    public ResponseEntity<String> addExtraDetails(@RequestBody ExtraDetailsDto extraDetailsDto){
+    public ResponseEntity<String> addExtraDetails(@RequestHeader("userId")String userId,@RequestBody ExtraDetailsDto extraDetailsDto){
+        extraDetailsDto.setUserId(userId);
         Optional<Profile> profile = profileService.getProfile(extraDetailsDto.getUserId());
+        SearchDto searchDto = new SearchDto();
+        searchDto.setValueType("P");
+
         if(profile.isPresent()) {
+            searchDto.setProfileId(profile.get().getUserId());
+            searchDto.setProfileValue(profile.get().getName());
+            searchDto.setProfileType(extraDetailsDto.getProfile());
+            sendToSearch(searchDto);
             BeanUtils.copyProperties(extraDetailsDto, profile.get());
             Profile createdProfile = profileService.addProfile(profile.get());
             return new ResponseEntity<String>(createdProfile.getUserId(),HttpStatus.CREATED);
@@ -49,8 +62,8 @@ public class Controller {
     }
 
     //Tesing done
-    @GetMapping("/profile/{userId}")
-    public ResponseEntity<ProfileDto> getProfile(@PathVariable("userId") String userId){
+    @GetMapping("/profile")
+    public ResponseEntity<ProfileDto> getProfile(@RequestHeader("userId") String userId){
         Optional<Profile> profile = profileService.getProfile(userId);
         ProfileDto profileDto = new ProfileDto();
         if(profile.isPresent()){
@@ -87,13 +100,13 @@ public class Controller {
     }
 
     //Tesing done
-    @PutMapping("/addFollower/{followerId}/{userId}")
-    public ResponseEntity<String> addFollower(@PathVariable("followerId") String followerId , @PathVariable("userId") String userId) throws JsonProcessingException{
+    @PutMapping("/addFollower/{followerId}")
+    public ResponseEntity<String> addFollower(@PathVariable("followerId") String followerId , @RequestHeader("userId") String userId) throws JsonProcessingException{
         return profileService.addFollower(followerId,userId);
     }
     //Testing done
-    @PutMapping("/addFollowing/{followingId}/{userId}")
-    public ResponseEntity<String> addFollowing(@PathVariable("followingId") String followingId , @PathVariable("userId") String userId){
+    @PutMapping("/addFollowing/{followingId}")
+    public ResponseEntity<String> addFollowing(@PathVariable("followingId") String followingId , @RequestHeader("userId") String userId){
         return profileService.addFollowing(followingId,userId);
     }
 
@@ -104,65 +117,74 @@ public class Controller {
     }
 
     //Testing done
-    @PutMapping("/addModerator/{moderatorId}/{userId}")
-    public ResponseEntity<String> addModerator(@PathVariable("moderatorId") String moderatorId , @PathVariable("userId") String userId){
+    @PutMapping("/addModerator/{moderatorId}")
+    public ResponseEntity<String> addModerator(@PathVariable("moderatorId") String moderatorId , @RequestHeader("userId") String userId){
         return profileService.addModerator(moderatorId,userId);
     }
 
     //Testing Done
     @PutMapping("/addCategory")
-    public ResponseEntity<String> addCategory(@RequestBody CategoryDto categoryDto){
+    public ResponseEntity<String> addCategory(@RequestHeader("userId")String userId,@RequestBody CategoryDto categoryDto){
+        System.out.println(userId);
+        categoryDto.setUserId(userId);
         return profileService.addCategory(categoryDto);
     }
 
     //Testing done
-    @GetMapping("/category/{userId}")
-    public ResponseEntity<List<InterestDto>> getCategory(@PathVariable("userId") String userId){
+    @GetMapping("/category")
+    public ResponseEntity<List<InterestDto>> getCategory(@RequestHeader("userId")String userId){
         return profileService.getCategory(userId);
     }
 
     //Testing done
-    @GetMapping("/follower/{userId}")
-    public ResponseEntity<List<UserDetailDto>> getFollower(@PathVariable("userId") String userId){
+    @GetMapping("/follower")
+    public ResponseEntity<List<UserDetailDto>> getFollower(@RequestHeader("userId") String userId){
         return profileService.getFollowers(userId);
     }
 
     //Testing done
-    @GetMapping("/following/{userId}")
-    public ResponseEntity<List<UserDetailDto>> getFollowing(@PathVariable("userId") String userId){
+    @GetMapping("/following")
+    public ResponseEntity<List<UserDetailDto>> getFollowing(@RequestHeader("userId") String userId){
         return profileService.getFollowing(userId);
     }
 
     //Testing done
-    @GetMapping("/moderator/{userId}")
-    public ResponseEntity<List<UserDetailDto>> getModerator(@PathVariable("userId") String userId){
+    @GetMapping("/moderator}")
+    public ResponseEntity<List<UserDetailDto>> getModerator(@RequestHeader("userId") String userId){
         return profileService.getModerators(userId);
     }
 
     //Testing done
-    @DeleteMapping("/follower/{followerId}/{userId}")
-    public ResponseEntity<String> removeFollower(@PathVariable("followerId") String followerId,@PathVariable("userId") String userId){
+    @DeleteMapping("/follower/{followerId}")
+    public ResponseEntity<String> removeFollower(@PathVariable("followerId") String followerId,@RequestHeader("userId") String userId){
         return profileService.removeFollower(followerId,userId);
     }
 
     //Testing done
-    @DeleteMapping("/following/{followingId}/{userId}")
-    public ResponseEntity<String> removeFollowing(@PathVariable("followingId") String followingId,@PathVariable("userId") String userId){
+    @DeleteMapping("/following/{followingId}")
+    public ResponseEntity<String> removeFollowing(@PathVariable("followingId") String followingId,@RequestHeader("userId") String userId){
         return profileService.removeFollowing(followingId,userId);
     }
 
     //Testing done
-    @DeleteMapping("/moderator/{moderatorId}/{userId}")
-    public ResponseEntity<String> removeModerator(@PathVariable("moderatorId") String moderatorId,@PathVariable("userId") String userId){
+    @DeleteMapping("/moderator/{moderatorId}")
+    public ResponseEntity<String> removeModerator(@PathVariable("moderatorId") String moderatorId,@RequestHeader("userId") String userId){
         return profileService.removeModerator(moderatorId,userId);
     }
 
     //Testing Done
-    @DeleteMapping("/category/{categoryId}/{userId}")
-    public ResponseEntity<String> removeCategory(@PathVariable("categoryId") String categoryId,@PathVariable("userId") String userId){
+    @DeleteMapping("/category/{categoryId}")
+    public ResponseEntity<String> removeCategory(@PathVariable("categoryId") String categoryId,@RequestHeader("userId") String userId){
         return profileService.removeCategory(categoryId,userId);
     }
 
+    public void sendToSearch(SearchDto searchDto){
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            kafkaTemplate.send("addToSearch",objectMapper.writeValueAsString(searchDto));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+    }
 
-
-}

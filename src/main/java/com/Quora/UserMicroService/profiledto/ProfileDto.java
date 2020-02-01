@@ -13,7 +13,7 @@ public class ProfileDto {
     String password;
     String channel;
     String role;
-    String phoneNumber;
-    String imageURL;
     String profile;
+    int points;
+    String level;
 }
