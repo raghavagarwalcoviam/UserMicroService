@@ -34,7 +34,7 @@ public class Controller {
         profile.setLevel("Beginner");
         profile.setCategory(new ArrayList<>());
         Profile createdProfile = profileService.addProfile(profile);
-        //insert to kafka
+        System.out.println(createdProfile.getUserId());
         return new ResponseEntity<String>(createdProfile.getUserId(),HttpStatus.CREATED);
     }
 
@@ -62,7 +62,7 @@ public class Controller {
     }
 
     //Tesing done
-    @GetMapping("/profile")
+    @PostMapping("/profile")
     public ResponseEntity<ProfileDto> getProfile(@RequestHeader("userId") String userId){
         Optional<Profile> profile = profileService.getProfile(userId);
         ProfileDto profileDto = new ProfileDto();
@@ -75,26 +75,39 @@ public class Controller {
         }
     }
 
+    @GetMapping("/getProfile/{userId}")
+    public ResponseEntity<ProfileDto> getProfileFrom(@PathVariable("userId")String userId){
+        Optional<Profile> profile = profileService.getProfile(userId);
+        ProfileDto profileDto = new ProfileDto();
+        if(profile.isPresent()){
+            BeanUtils.copyProperties(profile.get(),profileDto);
+            return new ResponseEntity<ProfileDto>(profileDto,HttpStatus.OK);
+        }
+        else {
+            return  new ResponseEntity<ProfileDto>(profileDto,HttpStatus.NOT_FOUND);
+        }
+    }
+
     //Testing done
-    @GetMapping("/followerId")
+    @PostMapping("/followerId")
     public ResponseEntity<AskerResponseDto> getFollowerId(@RequestBody AskerDto askerDto){
         return new ResponseEntity<AskerResponseDto>(profileService.getFollower(askerDto),HttpStatus.ACCEPTED);
     }
 
     //Testing done
-    @GetMapping("/approveFollower")
+    @PostMapping("/approveFollower")
     public ResponseEntity<AskerResponseDto> getApprovedFollower(@RequestBody AskerDto askerDto){
         return new ResponseEntity<AskerResponseDto>(profileService.getApprovedFollower(askerDto),HttpStatus.ACCEPTED);
     }
 
     //Testing done
-    @GetMapping("/answerFollowerId")
+    @PostMapping("/answerFollowerId")
     public ResponseEntity<AnswerResponseDto> getAnswerFollower(@RequestBody AnswerDto answerDto){
         return new ResponseEntity<AnswerResponseDto>(profileService.getAnswerFollower(answerDto),HttpStatus.ACCEPTED);
     }
 
     //Testing done
-    @GetMapping("/answerApproveFollower")
+    @PostMapping("/answerApproveFollower")
     public ResponseEntity<AnswerResponseDto> getAnswerApprovedFollower(@RequestBody AnswerDto answerDto){
         return new ResponseEntity<AnswerResponseDto>(profileService.getAnswerApprovedFollower(answerDto),HttpStatus.ACCEPTED);
     }
@@ -133,12 +146,14 @@ public class Controller {
     //Testing done
     @GetMapping("/category")
     public ResponseEntity<List<InterestDto>> getCategory(@RequestHeader("userId")String userId){
+        System.out.println(userId);
         return profileService.getCategory(userId);
     }
 
     //Testing done
     @GetMapping("/follower")
     public ResponseEntity<List<UserDetailDto>> getFollower(@RequestHeader("userId") String userId){
+        System.out.println(userId );
         return profileService.getFollowers(userId);
     }
 
@@ -176,6 +191,11 @@ public class Controller {
     @DeleteMapping("/category/{categoryId}")
     public ResponseEntity<String> removeCategory(@PathVariable("categoryId") String categoryId,@RequestHeader("userId") String userId){
         return profileService.removeCategory(categoryId,userId);
+    }
+
+    @GetMapping("/isFollowing/{followingId}")
+    public ResponseEntity<String> isFollowing(@RequestHeader("userId")String userId,@PathVariable("followingId")String followingId){
+        return profileService.isFollowing(userId,followingId);
     }
 
     public void sendToSearch(SearchDto searchDto){

@@ -6,8 +6,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AskerDto {
-    String askerId;
-    String taggedProfileId;
-    String taggedProfileType;
-    String category;
+    private String askerId;
+    private String askerUserName;
+    private String taggedProfileId;
+    private String taggedProfileType;
+    private String taggedProfileName;
+    private String category;
+    private Boolean isApproved;
 }

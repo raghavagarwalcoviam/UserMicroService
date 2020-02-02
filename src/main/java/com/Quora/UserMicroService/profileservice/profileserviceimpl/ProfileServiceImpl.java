@@ -47,7 +47,14 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public AskerResponseDto getFollower(AskerDto askerDto) {
+        System.out.println("Inside asker");
+
         AskerResponseDto askerResponseDto = new AskerResponseDto();
+        askerResponseDto.setTagFollowerList(new ArrayList<>());
+        askerResponseDto.setAskerFollowerList(new ArrayList<>());
+        askerResponseDto.setModeratorList(new ArrayList<>());
+        askerResponseDto.setCategoryFollowerList(new ArrayList<>());
+
         List<String> categoryFollowerList = new ArrayList<>();
         Iterator<Profile> profileIterator;
         Optional<Profile> profile = profileRepository.findById(askerDto.getAskerId());
@@ -66,13 +73,15 @@ public class ProfileServiceImpl implements ProfileService {
         profileIterator = profileList.iterator();
         while (profileIterator.hasNext()) {
             Profile userProfile = profileIterator.next();
-            Iterator<InterestDto> interestDtoIterator = userProfile.getCategory().iterator();
-            while (interestDtoIterator.hasNext()){
-                if (interestDtoIterator.next().getInterestId().equals(askerDto.getCategory())) {
-                    categoryFollowerList.add(userProfile.getUserId());
+            if (null != userProfile.getCategory()) {
+                Iterator<InterestDto> interestDtoIterator = userProfile.getCategory().iterator();
+                while (interestDtoIterator.hasNext()) {
+                    if (interestDtoIterator.next().getInterestId().equals(askerDto.getCategory())) {
+                        categoryFollowerList.add(userProfile.getUserId());
+                    }
+                }
             }
-            }
-            }
+        }
         askerResponseDto.setCategoryFollowerList(categoryFollowerList);
 
         if (null != askerDto.getTaggedProfileId()) {
@@ -97,11 +106,14 @@ public class ProfileServiceImpl implements ProfileService {
                 }
             }
         }
+        System.out.println(askerResponseDto.toString());
         return askerResponseDto;
     }
 
     @Override
     public AskerResponseDto getApprovedFollower(AskerDto askerDto) {
+        System.out.println("inside asker approved");
+
         AskerResponseDto askerResponseDto = new AskerResponseDto();
         List<String> categoryFollowerList = new ArrayList<>();
         Iterator<Profile> profileIterator;
@@ -120,10 +132,12 @@ public class ProfileServiceImpl implements ProfileService {
         profileIterator = profileList.iterator();
         while (profileIterator.hasNext()) {
             Profile userProfile = profileIterator.next();
-            Iterator<InterestDto> interestDtoIterator = userProfile.getCategory().iterator();
-            while (interestDtoIterator.hasNext()){
-                if (interestDtoIterator.next().getInterestId().equals(askerDto.getCategory())) {
-                    categoryFollowerList.add(userProfile.getUserId());
+            if (null != userProfile.getCategory()) {
+                Iterator<InterestDto> interestDtoIterator = userProfile.getCategory().iterator();
+                while (interestDtoIterator.hasNext()) {
+                    if (interestDtoIterator.next().getInterestId().equals(askerDto.getCategory())) {
+                        categoryFollowerList.add(userProfile.getUserId());
+                    }
                 }
             }
         }
@@ -162,10 +176,12 @@ public class ProfileServiceImpl implements ProfileService {
         profileIterator = profileList.iterator();
         while (profileIterator.hasNext()) {
             Profile userProfile = profileIterator.next();
-            Iterator<InterestDto> interestDtoIterator = userProfile.getCategory().iterator();
-            while (interestDtoIterator.hasNext()){
-                if (interestDtoIterator.next().getInterestId().equals(answerDto.getCategory())) {
-                    categoryFollowerList.add(userProfile.getUserId());
+            if (null != userProfile.getCategory()) {
+                Iterator<InterestDto> interestDtoIterator = userProfile.getCategory().iterator();
+                while (interestDtoIterator.hasNext()) {
+                    if (interestDtoIterator.next().getInterestId().equals(answerDto.getCategory())) {
+                        categoryFollowerList.add(userProfile.getUserId());
+                    }
                 }
             }
         }
@@ -226,10 +242,12 @@ public class ProfileServiceImpl implements ProfileService {
         profileIterator = profileList.iterator();
         while (profileIterator.hasNext()) {
             Profile userProfile = profileIterator.next();
-            Iterator<InterestDto> interestDtoIterator = userProfile.getCategory().iterator();
-            while (interestDtoIterator.hasNext()){
-                if (interestDtoIterator.next().getInterestId().equals(answerDto.getCategory())) {
-                    categoryFollowerList.add(userProfile.getUserId());
+            if (null != userProfile.getCategory()) {
+                Iterator<InterestDto> interestDtoIterator = userProfile.getCategory().iterator();
+                while (interestDtoIterator.hasNext()) {
+                    if (interestDtoIterator.next().getInterestId().equals(answerDto.getCategory())) {
+                        categoryFollowerList.add(userProfile.getUserId());
+                    }
                 }
             }
         }
@@ -441,6 +459,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ResponseEntity<List<InterestDto>> getCategory(String userId) {
         Optional<Profile> profile = profileRepository.findById(userId);
+        System.out.println(profile.get().getName());
         if(profile.isPresent()){
             return new ResponseEntity<List<InterestDto>>(profile.get().getCategory(),HttpStatus.OK);
         }
@@ -516,6 +535,17 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
+    @Override
+    public ResponseEntity<String> isFollowing(String followingId, String userId) {
+        Optional<Followers> following = followerRepository.findByUserIdAndFollowerId(followingId,userId);
+        if(following.isPresent()){
+            return new ResponseEntity<String>("true",HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<String>("false",HttpStatus.OK);
+        }
+    }
+
     public void sendNotificationPoints(Optional<Profile> profile,String level) throws JsonProcessingException {
         PointUpgradeNotificationDto pointUpgradeNotificationDto = new PointUpgradeNotificationDto();
         pointUpgradeNotificationDto.setLevel(level);
@@ -539,7 +569,12 @@ public class ProfileServiceImpl implements ProfileService {
         if(followProfile.isPresent()){
         followDto.setFollowedUserId(followProfile.get().getUserId());
         followDto.setFollowedIdType(followProfile.get().getProfile());
-    }
+        }
+        else {
+            followDto.setFollowedUserId("");
+            followDto.setFollowedIdType("");
+        }
+
     ObjectMapper mapper = new ObjectMapper();
         kafkaTemplate.send("followRequest",mapper.writeValueAsString(followDto));
     }

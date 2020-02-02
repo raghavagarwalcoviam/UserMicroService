@@ -3,6 +3,7 @@ package com.Quora.UserMicroService.profileservice;
 import com.Quora.UserMicroService.profiledto.*;
 import com.Quora.UserMicroService.profileentity.Profile;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -28,4 +29,5 @@ public interface ProfileService {
     ResponseEntity<String> removeFollowing(String followingId,String userId);
     ResponseEntity<String> removeModerator(String moderatorId,String userId);
     ResponseEntity<String> removeCategory(String categoryId,String userId);
+    ResponseEntity<String> isFollowing(String followingId,String userId);
 }
