@@ -24,10 +24,10 @@ public interface ProfileService {
     ResponseEntity<List<UserDetailDto>> getFollowers(String userId);
     ResponseEntity<List<UserDetailDto>> getFollowing(String userId);
     ResponseEntity<List<UserDetailDto>> getModerators(String userId);
-    ResponseEntity<List<InterestDto>> getCategory(String userId);
+    List<InterestDto> getCategory(String userId);
     ResponseEntity<String> removeFollower(String followerId,String userId);
     ResponseEntity<String> removeFollowing(String followingId,String userId);
     ResponseEntity<String> removeModerator(String moderatorId,String userId);
     ResponseEntity<String> removeCategory(String categoryId,String userId);
-    ResponseEntity<String> isFollowing(String followingId,String userId);
+    String isFollowing(String followingId,String userId);
 }

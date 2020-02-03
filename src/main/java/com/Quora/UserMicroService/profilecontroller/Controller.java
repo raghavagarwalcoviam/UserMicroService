@@ -13,6 +13,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 @CrossOrigin("*")
@@ -41,6 +42,7 @@ public class Controller {
     //Testing done
     @PostMapping("/extraDetails")
     public ResponseEntity<String> addExtraDetails(@RequestHeader("userId")String userId,@RequestBody ExtraDetailsDto extraDetailsDto){
+        System.out.println("inside extradetails");
         extraDetailsDto.setUserId(userId);
         Optional<Profile> profile = profileService.getProfile(extraDetailsDto.getUserId());
         SearchDto searchDto = new SearchDto();
@@ -62,7 +64,7 @@ public class Controller {
     }
 
     //Tesing done
-    @PostMapping("/profile")
+    @GetMapping("/profile")
     public ResponseEntity<ProfileDto> getProfile(@RequestHeader("userId") String userId){
         Optional<Profile> profile = profileService.getProfile(userId);
         ProfileDto profileDto = new ProfileDto();
@@ -115,6 +117,7 @@ public class Controller {
     //Tesing done
     @PutMapping("/addFollower/{followerId}")
     public ResponseEntity<String> addFollower(@PathVariable("followerId") String followerId , @RequestHeader("userId") String userId) throws JsonProcessingException{
+        addFollowing(userId,followerId);
         return profileService.addFollower(followerId,userId);
     }
     //Testing done
@@ -136,10 +139,13 @@ public class Controller {
     }
 
     //Testing Done
-    @PutMapping("/addCategory")
-    public ResponseEntity<String> addCategory(@RequestHeader("userId")String userId,@RequestBody CategoryDto categoryDto){
+    @PutMapping("/addCategory/{categoryId}")
+    public ResponseEntity<String> addCategory(@RequestHeader("userId")String userId,@PathVariable("categoryId")String categoryId){
         System.out.println(userId);
+        CategoryDto categoryDto= new CategoryDto();
         categoryDto.setUserId(userId);
+        categoryDto.setInterestId(categoryId);
+        categoryDto.setInterestName(categoryId);
         return profileService.addCategory(categoryDto);
     }
 
@@ -147,7 +153,7 @@ public class Controller {
     @GetMapping("/category")
     public ResponseEntity<List<InterestDto>> getCategory(@RequestHeader("userId")String userId){
         System.out.println(userId);
-        return profileService.getCategory(userId);
+        return new ResponseEntity<List<InterestDto>>(profileService.getCategory(userId),HttpStatus.OK);
     }
 
     //Testing done
@@ -157,9 +163,20 @@ public class Controller {
         return profileService.getFollowers(userId);
     }
 
+    @GetMapping("/getFollower/{userId}")
+    public ResponseEntity<List<UserDetailDto>> getFollowerUs(@PathVariable("userId") String userId){
+        System.out.println(userId );
+        return profileService.getFollowers(userId);
+    }
+
     //Testing done
     @GetMapping("/following")
     public ResponseEntity<List<UserDetailDto>> getFollowing(@RequestHeader("userId") String userId){
+        return profileService.getFollowing(userId);
+    }
+
+    @GetMapping("/getFollowing/{userId}")
+    public ResponseEntity<List<UserDetailDto>> getFollowingUs(@PathVariable("userId") String userId){
         return profileService.getFollowing(userId);
     }
 
@@ -194,8 +211,24 @@ public class Controller {
     }
 
     @GetMapping("/isFollowing/{followingId}")
-    public ResponseEntity<String> isFollowing(@RequestHeader("userId")String userId,@PathVariable("followingId")String followingId){
-        return profileService.isFollowing(userId,followingId);
+    public IsFollowingResponse isFollowing(@RequestHeader("userId")String userId,@PathVariable("followingId")String followingId){
+      IsFollowingResponse isFollowingResponse = new IsFollowingResponse();
+      isFollowingResponse.setIsFollowing(profileService.isFollowing(userId,followingId));
+      return isFollowingResponse;
+    }
+
+    @GetMapping("/isFollowingCategory/{categoryId}")
+    public IsFollowingResponse isFollowingCategoryResponse(@RequestHeader("userId")String userId , @PathVariable("categoryId") String categoryId){
+      List<InterestDto> interestDtos = profileService.getCategory(userId);
+      IsFollowingResponse isFollowingResponse = new IsFollowingResponse();
+      isFollowingResponse.setIsFollowing("false");
+        Iterator<InterestDto> interestDtoIterator = interestDtos.iterator();
+        while (interestDtoIterator.hasNext()){
+            if(interestDtoIterator.next().getInterestId().equalsIgnoreCase(categoryId)){
+                isFollowingResponse.setIsFollowing("true");
+            }
+        }
+        return isFollowingResponse;
     }
 
     public void sendToSearch(SearchDto searchDto){

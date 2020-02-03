@@ -457,14 +457,14 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public ResponseEntity<List<InterestDto>> getCategory(String userId) {
+    public List<InterestDto> getCategory(String userId) {
         Optional<Profile> profile = profileRepository.findById(userId);
         System.out.println(profile.get().getName());
         if(profile.isPresent()){
-            return new ResponseEntity<List<InterestDto>>(profile.get().getCategory(),HttpStatus.OK);
+            return profile.get().getCategory();
         }
         else {
-            return new ResponseEntity<List<InterestDto>>(HttpStatus.NOT_FOUND);
+            return new ArrayList<InterestDto>();
         }
     }
 
@@ -536,13 +536,15 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public ResponseEntity<String> isFollowing(String followingId, String userId) {
+    public String isFollowing(String followingId, String userId) {
         Optional<Followers> following = followerRepository.findByUserIdAndFollowerId(followingId,userId);
         if(following.isPresent()){
-            return new ResponseEntity<String>("true",HttpStatus.OK);
+            System.out.println("true");
+            return "true";
         }
         else {
-            return new ResponseEntity<String>("false",HttpStatus.OK);
+            System.out.println("false");
+            return "false";
         }
     }
 
